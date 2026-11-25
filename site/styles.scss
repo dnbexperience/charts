@@ -1,0 +1,111 @@
+.dnb-chart-gallery-theme {
+  min-height: 100vh;
+  color: var(--token-color-text-neutral);
+  background-color: var(--token-color-background-page-background);
+}
+
+.dnb-chart-gallery {
+  max-width: 90rem;
+  margin: 0 auto;
+
+  &__workspace {
+    min-width: 0;
+  }
+
+  &__instructions {
+    width: 100%;
+  }
+
+  &__readme {
+    min-width: 0;
+    color: var(--token-color-text-neutral);
+    overflow-wrap: anywhere;
+
+    .dnb-table {
+      overflow-wrap: normal;
+    }
+  }
+
+  &__header {
+    position: sticky;
+    z-index: calc(var(--z-index-dropdown) - 2);
+    top: 0;
+    min-height: 4.5rem;
+    border-bottom: 0.0625rem solid
+      color-mix(
+        in srgb,
+        var(--token-color-stroke-neutral-subtle) 40%,
+        transparent
+      );
+    background-color: var(--token-color-background-neutral-subtle);
+  }
+
+  &__plot {
+    width: 100%;
+    min-width: 0;
+    min-height: 16rem;
+    color: var(--color-black-80);
+    font-family: var(--font-family-default);
+    background-color: var(--color-white);
+    color-scheme: light;
+  }
+
+  &__example {
+    min-width: 0;
+
+    .dnb-chartist {
+      padding: 1rem 0.5rem 0;
+      border-radius: 0.5rem;
+    }
+  }
+
+  &__legend {
+    padding: 0;
+    list-style: none;
+
+    li::before {
+      content: '';
+      display: inline-block;
+      width: 1.5rem;
+      margin-right: 0.5rem;
+      vertical-align: middle;
+      border-top: 0.125rem solid currentcolor;
+      color: var(--chart-color-tertiary-solid, #007b5e);
+    }
+
+    li:nth-child(2)::before {
+      color: var(--chart-color-blue-700, #1955a9);
+      border-top-style: dashed;
+    }
+
+    li:nth-child(3)::before {
+      color: var(--chart-color-purple-700, #3c3caa);
+      border-top-style: dotted;
+    }
+
+    li:nth-child(4)::before {
+      color: var(--chart-color-orange-700, #cc4300);
+      border-top-style: dashed;
+    }
+
+    &--solid li:nth-child(n)::before {
+      border-top-style: solid;
+    }
+
+    &--swatches li:nth-child(n)::before,
+    &--points li:nth-child(n)::before {
+      width: 0.75rem;
+      height: 0.75rem;
+      border: 0;
+      background-color: currentcolor;
+    }
+
+    &--points li:first-child::before {
+      border-radius: 50%;
+    }
+
+    &--points li:nth-child(2)::before {
+      transform: rotate(45deg);
+    }
+  }
+}

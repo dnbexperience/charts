@@ -1,0 +1,146 @@
+{
+  "name": "@eufemia/charts",
+  "version": "0.0.0-development",
+  "description": "Chart library integration defaults for Eufemia",
+  "license": "SEE LICENSE IN LICENSE",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dnbexperience/charts.git"
+  },
+  "homepage": "https://dnbexperience.github.io/charts/",
+  "bugs": {
+    "url": "https://github.com/dnbexperience/charts/issues"
+  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "THIRD_PARTY_NOTICES.md"
+  ],
+  "exports": {
+    "./chartist": {
+      "types": "./dist/chartist/index.d.ts",
+      "import": "./dist/chartist/index.js"
+    },
+    "./chartist/styles.css": "./dist/chartist/styles.css",
+    "./package.json": "./package.json",
+    "./theme": {
+      "types": "./dist/theme.d.ts",
+      "import": "./dist/theme.js"
+    },
+    "./chart-js": {
+      "types": "./dist/chart-js/index.d.ts",
+      "import": "./dist/chart-js/index.js"
+    },
+    "./recharts": {
+      "types": "./dist/recharts/index.d.ts",
+      "import": "./dist/recharts/index.js"
+    },
+    "./nivo": {
+      "types": "./dist/nivo/index.d.ts",
+      "import": "./dist/nivo/index.js"
+    },
+    "./echarts": {
+      "types": "./dist/echarts/index.d.ts",
+      "import": "./dist/echarts/index.js"
+    }
+  },
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "peerDependencies": {
+    "@dnb/eufemia": "^11.18.1",
+    "@nivo/line": "^0.99.0",
+    "chart.js": "^4.6.2",
+    "chartist": "^2.3.0",
+    "echarts": "^6.1.0",
+    "recharts": "^3.11.1"
+  },
+  "peerDependenciesMeta": {
+    "@nivo/line": {
+      "optional": true
+    },
+    "chart.js": {
+      "optional": true
+    },
+    "chartist": {
+      "optional": true
+    },
+    "echarts": {
+      "optional": true
+    },
+    "recharts": {
+      "optional": true
+    }
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/",
+    "provenance": true
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json && node scripts/build-styles.ts",
+    "test": "node --test tests/*.test.ts",
+    "test:types": "tsc --noEmit",
+    "lint": "eslint src scripts tests site vite.site.config.ts *.mjs",
+    "lint:styles": "stylelint \"{src,site}/**/*.scss\"",
+    "format:check": "prettier --check .",
+    "pack:check": "node scripts/check-package.ts",
+    "release:check": "node scripts/check-release.ts",
+    "prepare:publish": "node scripts/prepare-publish.ts",
+    "ci": "yarn format:check && yarn lint && yarn lint:styles && yarn build && yarn test:types && yarn test && yarn pack:check && yarn release:check && yarn site:check",
+    "prepack": "yarn build",
+    "release": "semantic-release",
+    "site": "vite --config vite.site.config.ts --host 127.0.0.1",
+    "site:build": "vite build --config vite.site.config.ts",
+    "site:check": "yarn site:build && node scripts/check-site.ts",
+    "site:preview": "vite preview --config vite.site.config.ts --host 127.0.0.1"
+  },
+  "devDependencies": {
+    "@dnb/eufemia": "https://pkg.pr.new/@dnb/eufemia@bd02ff635a90b7bb2b57e71ab1ce636961a3c064.tgz",
+    "@eslint/js": "9.39.5",
+    "@mdx-js/rollup": "3.1.1",
+    "@nivo/bar": "0.99.0",
+    "@nivo/line": "0.99.0",
+    "@nivo/pie": "0.99.0",
+    "@nivo/scatterplot": "0.99.0",
+    "@playwright/test": "1.65.1",
+    "@semantic-release/commit-analyzer": "13.0.1",
+    "@semantic-release/github": "12.0.11",
+    "@semantic-release/npm": "13.2.0",
+    "@semantic-release/release-notes-generator": "14.1.1",
+    "@types/node": "24.19.3",
+    "@types/react": "19.3.2",
+    "@types/react-dom": "19.3.0",
+    "@types/react-is": "19.3.0",
+    "@vitejs/plugin-react": "6.3.0",
+    "chart.js": "4.6.2",
+    "chartist": "2.3.0",
+    "conventional-changelog-conventionalcommits": "9.3.1",
+    "echarts": "6.1.0",
+    "esbuild": "0.28.2",
+    "eslint": "9.39.5",
+    "eslint-plugin-jsx-a11y": "6.10.2",
+    "eslint-plugin-react-hooks": "7.1.1",
+    "globals": "17.14.0",
+    "postcss": "8.5.33",
+    "prettier": "3.10.1",
+    "purgecss": "8.0.0",
+    "react": "19.3.1",
+    "react-chartjs-2": "5.3.1",
+    "react-dom": "19.3.1",
+    "react-is": "19.3.1",
+    "recharts": "3.11.1",
+    "remark-gfm": "4.0.1",
+    "rollup": "4.68.8",
+    "sass": "1.108.2",
+    "semantic-release": "25.0.9",
+    "stylelint": "18.1.0",
+    "stylelint-config-recommended": "19.1.0",
+    "stylelint-config-standard-scss": "18.0.0",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.74.0",
+    "vite": "8.3.8"
+  },
+  "packageManager": "yarn@4.18.1"
+}
