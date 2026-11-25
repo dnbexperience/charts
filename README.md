@@ -116,7 +116,7 @@ Releases run independently from Eufemia on `main`, use `v${version}` tags, and p
 
 Before enabling releases:
 
-1. Establish `@eufemia/charts` under the `eufemia` npm organization. A `0.0.0-stage` reservation with the `stage` dist-tag may be used before the first full release.
+1. Establish `@eufemia/charts` under the `eufemia` npm organization. For a new package, `npm stage publish` creates npm's public `0.0.0-stage` placeholder while keeping the submitted version unpublished until approval. Use a separate prerelease version and the `stage` dist-tag for a reservation; `0.0.0-stage` cannot be published directly.
 2. Configure npm trusted publishing for owner `dnbexperience`, repository `charts`, workflow `release.yml`, and environment `npm-release`.
 3. Create the GitHub environment `npm-release` and restrict it to `main`. Confirm the workflow token may create tags and GitHub releases.
 4. After the reviewed setup is merged and npm trusted publishing is verified, set the repository variable `RELEASE_ENABLED` to `true`.
