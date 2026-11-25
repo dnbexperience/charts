@@ -99,6 +99,7 @@
   "devDependencies": {
     "@dnb/eufemia": "11.18.1",
     "@eslint/js": "9.39.5",
+    "@mdx-js/rollup": "3.1.1",
     "@nivo/line": "0.99.0",
     "@playwright/test": "1.65.1",
     "@semantic-release/commit-analyzer": "13.0.1",
@@ -127,6 +128,8 @@
     "react-dom": "19.3.1",
     "react-is": "19.3.1",
     "recharts": "3.11.1",
+    "remark-gfm": "4.0.1",
+    "rollup": "4.68.8",
     "sass": "1.108.2",
     "semantic-release": "25.0.9",
     "stylelint": "18.1.0",

@@ -1,6 +1,8 @@
 import path from 'node:path'
+import mdx from '@mdx-js/rollup'
 import react from '@vitejs/plugin-react'
 import { eufemiaCssOptimizer } from '@dnb/eufemia/style/vite-plugin.js'
+import remarkGfm from 'remark-gfm'
 import { defineConfig } from 'vite'
 
 const root = import.meta.dirname
@@ -10,6 +12,7 @@ export default defineConfig({
   base: './',
   root: path.join(root, 'site'),
   plugins: [
+    mdx({ remarkPlugins: [remarkGfm] }),
     react(),
     eufemiaCssOptimizer({
       components: undefined,

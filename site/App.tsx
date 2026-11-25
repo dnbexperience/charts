@@ -19,6 +19,7 @@ import home from '@dnb/eufemia/icons/home.js'
 import Theme from '@dnb/eufemia/shared/Theme.js'
 import { readChartTheme, type ChartTheme } from '../dist/theme.js'
 import { examples, labels, type Example } from './examples.js'
+import Readme from './Readme.js'
 import chartistIcon from './icons/chartist.svg'
 import rechartsIcon from './icons/recharts.png'
 import chartJsIcon from './icons/chart-js.ico'
@@ -187,6 +188,7 @@ function Gallery({ library }: { library: Library }) {
           as the chart guidelines develop.
         </P>
       </Card>
+      <Readme />
       <P top="medium">
         <Anchor href={library.href}>{library.title} documentation</Anchor>
       </P>

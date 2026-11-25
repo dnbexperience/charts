@@ -65,6 +65,31 @@ try {
       .getByRole('link', { name: 'Chartist', exact: true })
   ).toHaveAttribute('aria-current', 'page')
   await expect(page.locator('.dnb-chartist svg')).toHaveCount(6)
+  const usage = page.getByRole('button', {
+    name: 'Installation and usage',
+  })
+  const readme = page.locator('.dnb-chart-gallery__readme')
+  await expect(usage).toHaveAttribute('aria-expanded', 'false')
+  await usage.focus()
+  await usage.press('Enter')
+  await expect(usage).toHaveAttribute('aria-expanded', 'true')
+  await expect(
+    readme.getByRole('heading', { name: 'Use Chartist', exact: true })
+  ).toBeVisible()
+  await expect(
+    readme.locator('pre').filter({
+      hasText: 'npm install @eufemia/charts @dnb/eufemia chartist',
+    })
+  ).toBeVisible()
+  await expect(readme.getByRole('table')).toBeVisible()
+  await expect(
+    readme.getByRole('link', { name: 'third-party notices' })
+  ).toHaveAttribute(
+    'href',
+    'https://github.com/dnbexperience/charts/blob/main/THIRD_PARTY_NOTICES.md'
+  )
+  await usage.click()
+  await expect(readme).not.toBeVisible()
   const icons = page.locator('aside .dnb-sidebar-menu__item__icon img')
   await expect(icons).toHaveCount(5)
   await expect
@@ -268,6 +293,28 @@ try {
     ),
     'Gallery fits a narrow viewport'
   )
+  await usage.click()
+  const codeExample = readme.locator('pre').first()
+  await expect(codeExample).toBeVisible()
+  await codeExample.focus()
+  await codeExample.press('ArrowRight')
+  await expect
+    .poll(() => codeExample.evaluate((el) => el.scrollLeft))
+    .toBeGreaterThan(0)
+  const comparison = readme.getByLabel('Chart library integrations')
+  await expect(comparison).toHaveAttribute('tabindex', '0')
+  await comparison.focus()
+  await comparison.press('ArrowRight')
+  await expect
+    .poll(() => comparison.evaluate((el) => el.scrollLeft))
+    .toBeGreaterThan(0)
+  assert.ok(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth
+    ),
+    'README code and tables scroll within the narrow page'
+  )
+  await usage.click()
   await page.getByRole('button', { name: 'Menu', exact: true }).click()
   await page
     .getByRole('dialog', { name: 'Chart libraries' })
