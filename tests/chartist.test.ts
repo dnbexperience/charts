@@ -6,6 +6,8 @@ test('uses straight lines and keeps the value grid', () => {
   const options = createLineChartOptions()
 
   assert.equal(options.lineSmooth, false)
+  assert.equal(options.fullWidth, true)
+  assert.deepEqual(options.chartPadding, { right: 32 })
   assert.deepEqual(options.axisX, { showGrid: false })
   assert.equal(options.axisY, undefined)
 })
@@ -14,6 +16,8 @@ test('preserves application formatters, series settings and overrides', () => {
   const formatter = (value: string | number) => value + ' kr'
   const input = {
     lineSmooth: true,
+    fullWidth: false,
+    chartPadding: 16,
     showArea: true,
     axisX: { showGrid: true, labelInterpolationFnc: formatter },
     axisY: { offset: 64, labelInterpolationFnc: formatter },

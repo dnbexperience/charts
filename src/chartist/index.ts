@@ -6,6 +6,8 @@ export function createLineChartOptions(
 ): LineChartPresetOptions {
   return {
     lineSmooth: false,
+    fullWidth: true,
+    chartPadding: { right: 32 },
     ...options,
     axisX: { showGrid: false, ...options.axisX },
   }

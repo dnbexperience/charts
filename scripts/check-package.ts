@@ -303,6 +303,22 @@ try {
     await page.goto(url)
     await page.locator('#chart .ct-line').waitFor()
     assert.equal(await page.locator('#chart .ct-point').count(), 4)
+    const endpoints = await page.locator('#chart').evaluate((chart) => {
+      const points = chart.querySelectorAll('.ct-point')
+      const grid = chart.querySelector('.ct-grid')!
+      return {
+        first: Number(points[0].getAttribute('x1')),
+        last: Number(points[points.length - 1].getAttribute('x1')),
+        left: Number(grid.getAttribute('x1')),
+        right: Number(grid.getAttribute('x2')),
+      }
+    })
+    assert.equal(endpoints.first, endpoints.left)
+    assert.equal(
+      endpoints.last,
+      endpoints.right,
+      'The last observation reaches the right edge of the plot'
+    )
     const resolved = await page.locator('#chart').evaluate((chart) => {
       const readTheme = (
         globalThis as unknown as {

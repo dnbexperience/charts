@@ -115,10 +115,20 @@ try {
           return false
         }
         const bounds = svg.getBoundingClientRect()
-        return [...svg.querySelectorAll('.ct-point')].every((point) => {
-          const x = Number(point.getAttribute('x1'))
-          return x >= 0 && x <= bounds.width
-        })
+        return (
+          [...svg.querySelectorAll('.ct-point')].every((point) => {
+            const x = Number(point.getAttribute('x1'))
+            return x >= 0 && x <= bounds.width
+          }) &&
+          [...svg.querySelectorAll('.ct-label.ct-horizontal')].every(
+            (label) => {
+              const range = document.createRange()
+              range.selectNodeContents(label)
+              const text = range.getBoundingClientRect()
+              return text.left >= bounds.left && text.right <= bounds.right
+            }
+          )
+        )
       })
     )
   await expect.poll(chartsFit).toBe(true)

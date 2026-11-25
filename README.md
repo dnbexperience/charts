@@ -68,7 +68,7 @@ chart.destroy()
 
 Use a container with `id="savings-chart"` and `class="dnb-chartist"`. Create the chart after mounting in the browser. The options helper can be imported on the server; DOM rendering and hydration are application responsibilities. In React, create the chart in an effect and return a cleanup function that calls `destroy()`.
 
-The helper defaults to straight lines and hides X-axis gridlines. It preserves Chartist's handling of missing observations and allows every option to be overridden. Supply units and locale-specific formatters for your data. Chartist does not animate by default; any animation plugins added by the application must respect reduced motion.
+The helper defaults to straight lines, stretches the first and last observations to the plot edges, and hides X-axis gridlines. It preserves Chartist's handling of missing observations and allows every option to be overridden. Supply units and locale-specific formatters for your data, and allow enough right chart padding for the last label. Chartist does not animate by default; any animation plugins added by the application must respect reduced motion.
 
 Four series are mapped to Eufemia green, blue, purple, and orange properties, with pale area fills. More series require explicit application styles and distinguishable labels or line patterns. Keep the chart on its light surface, including in dark themes. Custom properties such as `--ct-line-width` and `--ct-series-a` can be overridden on an individual chart.
 
