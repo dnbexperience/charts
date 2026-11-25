@@ -58,13 +58,223 @@ try {
     }
   })
   const url = 'http://127.0.0.1:' + address.port + '/charts/'
+  const checkChartTypes = async (library: string) => {
+    // Measure rendered data so category and numeric scale regressions are visible.
+    const shapes = (example: string) =>
+      page.locator('[data-example="' + example + '"]').evaluate((plot) => {
+        const colors = [
+          'rgb(0, 123, 94)',
+          'rgb(25, 85, 169)',
+          'rgb(60, 60, 170)',
+        ]
+        const canvas = plot.querySelector('canvas')
+        if (canvas) {
+          const context = canvas.getContext('2d')!
+          const { width, height } = canvas
+          const pixels = context.getImageData(0, 0, width, height).data
+          return [
+            [0, 123, 94],
+            [25, 85, 169],
+            [60, 60, 170],
+          ].flatMap((rgb, series) => {
+            const columns: { x: number; top: number; bottom: number }[] =
+              []
+            for (let x = 0; x < width; x++) {
+              let top = height
+              let bottom = -1
+              for (let y = 0; y < height; y++) {
+                const i = (y * width + x) * 4
+                if (rgb.every((channel, j) => pixels[i + j] === channel)) {
+                  top = Math.min(top, y)
+                  bottom = y
+                }
+              }
+              if (bottom >= 0) {
+                columns.push({ x, top, bottom })
+              }
+            }
+            const runs: {
+              series: number
+              x: number
+              y: number
+              width: number
+              height: number
+            }[] = []
+            for (const column of columns) {
+              const previous = runs.at(-1)
+              if (previous && column.x === previous.x + previous.width) {
+                const bottom = Math.max(
+                  previous.y + previous.height,
+                  column.bottom + 1
+                )
+                previous.width++
+                previous.y = Math.min(previous.y, column.top)
+                previous.height = bottom - previous.y
+              } else {
+                runs.push({
+                  series,
+                  x: column.x,
+                  y: column.top,
+                  width: 1,
+                  height: column.bottom - column.top + 1,
+                })
+              }
+            }
+            return runs.map((run) => ({
+              ...run,
+              x: run.x + run.width / 2,
+            }))
+          })
+        }
+        return [
+          ...plot.querySelectorAll<SVGGraphicsElement>(
+            'path,line,rect,circle'
+          ),
+        ]
+          .filter((element) => !element.closest('defs'))
+          .flatMap((element) => {
+            const style = getComputedStyle(element)
+            const series = colors.findIndex(
+              (color) => style.fill === color || style.stroke === color
+            )
+            if (series < 0) {
+              return []
+            }
+            const bounds = element.getBoundingClientRect()
+            return [
+              {
+                series,
+                x: bounds.x + bounds.width / 2,
+                y: bounds.y,
+                width: bounds.width,
+                height: bounds.height,
+              },
+            ]
+          })
+      })
+    for (const id of ['bars', 'stacked-bars']) {
+      const bars = await shapes(id)
+      const series = [0, 1, 2].map((index) =>
+        bars
+          .filter((bar) => bar.series === index)
+          .sort((a, b) => a.x - b.x)
+      )
+      assert.deepEqual(
+        series.map((bars) => bars.length),
+        [6, 6, 6],
+        library + ' draws all bar values'
+      )
+      const [green, blue, purple] = series
+      assert.ok(
+        Math.abs(green[5].height / green[0].height - 2) < 0.15,
+        library + ' preserves bar proportions'
+      )
+      if (id === 'bars') {
+        assert.ok(
+          green[0].x < blue[0].x && blue[0].x < purple[0].x,
+          library + ' groups series side by side'
+        )
+      } else {
+        assert.ok(
+          Math.abs(green[0].x - blue[0].x) < 1 &&
+            Math.abs(blue[0].x - purple[0].x) < 1,
+          library + ' stacks series at the same category'
+        )
+        assert.ok(
+          purple[0].y < blue[0].y && blue[0].y < green[0].y,
+          library + ' accumulates positive values'
+        )
+        assert.ok(
+          Math.abs(
+            (purple[0].y - purple[5].y) /
+              (green[5].height - green[0].height) -
+              45 / 20
+          ) < 0.1,
+          library + ' preserves stack totals'
+        )
+      }
+    }
+    if (library !== 'chartist') {
+      const scatter = await shapes('scatter')
+      for (const index of [0, 1]) {
+        const points = scatter
+          .filter((point) => point.series === index)
+          .sort((a, b) => a.x - b.x)
+        assert.equal(
+          points.length,
+          6,
+          library + ' draws six observations per scatter series'
+        )
+        const ratio =
+          (points[2].x - points[1].x) / (points[1].x - points[0].x)
+        assert.ok(
+          Math.abs(ratio - 16 / 7) < 0.1,
+          library + ' uses unequal numeric scatter intervals'
+        )
+      }
+      const data = page.locator('.dnb-chart-gallery__example').filter({
+        has: page.getByRole('heading', {
+          name: 'Scatter plot',
+          exact: true,
+        }),
+      })
+      await data
+        .getByRole('button', { name: 'View data', exact: true })
+        .click()
+      await expect(
+        data.getByRole('columnheader', { name: 'Effort (hours)' })
+      ).toBeVisible()
+      await expect(
+        data.getByText('Scatter plot – output in units', { exact: true })
+      ).toBeVisible()
+      await data
+        .getByRole('button', { name: 'View data', exact: true })
+        .click()
+    }
+    for (const id of ['pie', 'donut']) {
+      const segments = await shapes(id)
+      assert.deepEqual(
+        [...new Set(segments.map((segment) => segment.series))].sort(),
+        [0, 1, 2],
+        library + ' renders all share colors'
+      )
+      if (library !== 'chart-js') {
+        const labels = await page
+          .locator('[data-example="' + id + '"] text')
+          .allTextContents()
+        assert.deepEqual(
+          labels.sort(),
+          ['15%', '30%', '55%'],
+          library + ' labels all shares'
+        )
+        assert.equal(segments.length, 3, library + ' draws three slices')
+      }
+    }
+  }
   await page.goto(url + '#chartist')
   await expect(
     page
       .locator('aside')
       .getByRole('link', { name: 'Chartist', exact: true })
   ).toHaveAttribute('aria-current', 'page')
-  await expect(page.locator('.dnb-chartist svg')).toHaveCount(6)
+  await expect(page.locator('.dnb-chartist svg')).toHaveCount(10)
+  const chartColors = await page
+    .locator('.dnb-chart-gallery__plot')
+    .first()
+    .evaluate((element) => {
+      const style = getComputedStyle(element)
+      return [
+        '--chart-color-tertiary-solid',
+        '--chart-color-blue-700',
+        '--chart-color-purple-700',
+        '--chart-color-orange-700',
+      ].map((property) => style.getPropertyValue(property).trim())
+    })
+  assert.ok(
+    chartColors.every(Boolean),
+    'The Eufemia PR theme supplies chart color properties'
+  )
+  await checkChartTypes('chartist')
   const usage = page.getByRole('button', {
     name: 'Installation and usage',
   })
@@ -213,8 +423,9 @@ try {
       page.locator(
         '.dnb-chart-gallery__plot svg, .dnb-chart-gallery__plot canvas'
       )
-    ).toHaveCount(6)
+    ).toHaveCount(12)
     await expect(page.locator('.dnb-chartist')).toHaveCount(0)
+    await checkChartTypes(key)
     const plot = page.locator('[data-example="gaps"]')
     if (key === 'chart-js') {
       const image = await plot.locator('canvas').evaluate((canvas) => {
@@ -285,7 +496,7 @@ try {
   ).toHaveCount(5)
   await drawer.getByRole('link', { name: 'Chartist', exact: true }).click()
   await expect(drawer).not.toBeVisible()
-  await expect(page.locator('.dnb-chartist svg')).toHaveCount(6)
+  await expect(page.locator('.dnb-chartist svg')).toHaveCount(10)
   await expect.poll(chartsFit).toBe(true)
   assert.ok(
     await page.evaluate(
@@ -325,7 +536,7 @@ try {
   await expect(
     page.getByRole('heading', { name: 'Chartist', exact: true, level: 1 })
   ).toBeVisible()
-  await expect(page.locator('.dnb-chartist svg')).toHaveCount(6)
+  await expect(page.locator('.dnb-chartist svg')).toHaveCount(10)
   await expect(
     page.getByRole('heading', { name: 'Preview colors', exact: true })
   ).toBeVisible()

@@ -97,10 +97,13 @@
     "site:preview": "vite preview --config vite.site.config.ts --host 127.0.0.1"
   },
   "devDependencies": {
-    "@dnb/eufemia": "11.18.1",
+    "@dnb/eufemia": "https://pkg.pr.new/@dnb/eufemia@bd02ff635a90b7bb2b57e71ab1ce636961a3c064.tgz",
     "@eslint/js": "9.39.5",
     "@mdx-js/rollup": "3.1.1",
+    "@nivo/bar": "0.99.0",
     "@nivo/line": "0.99.0",
+    "@nivo/pie": "0.99.0",
+    "@nivo/scatterplot": "0.99.0",
     "@playwright/test": "1.65.1",
     "@semantic-release/commit-analyzer": "13.0.1",
     "@semantic-release/github": "12.0.11",

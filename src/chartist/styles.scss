@@ -13,11 +13,22 @@
   --ct-line-width: 0.125rem;
   --ct-point-size: 0.375rem;
   --ct-area-opacity: 1;
+  --ct-bar-width: 0.75rem;
 
   color: var(--color-black-80);
   font-family: var(--font-family-default);
   background-color: var(--color-white);
   color-scheme: light;
+
+  .ct-slice-pie {
+    stroke: var(--color-white);
+    stroke-width: 0.125rem;
+  }
+
+  .ct-label:not(.ct-horizontal, .ct-vertical) {
+    fill: var(--color-white);
+    font-weight: var(--font-weight-medium);
+  }
 
   .ct-series-b .ct-line {
     stroke-dasharray: 8 4;

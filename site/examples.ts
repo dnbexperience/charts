@@ -5,9 +5,17 @@ export type Example = {
   title: string
   description: string
   series: (number | null)[][]
+  kind?: 'bar' | 'scatter' | 'pie' | 'donut'
+  stacked?: boolean
   area?: boolean
   override?: boolean
 }
+const contributions = [
+  [20, 25, 30, 25, 35, 40],
+  [10, 15, 20, 15, 20, 25],
+  [5, 10, 10, 15, 10, 15],
+]
+
 export const examples: Example[] = [
   {
     id: 'line',
@@ -48,6 +56,51 @@ export const examples: Example[] = [
     area: true,
   },
   {
+    id: 'bars',
+    title: 'Grouped bars',
+    kind: 'bar',
+    description:
+      'Compare monthly contributions in thousands of NOK, with a zero baseline.',
+    series: contributions,
+  },
+  {
+    id: 'stacked-bars',
+    title: 'Stacked bars',
+    kind: 'bar',
+    stacked: true,
+    description:
+      'Monthly contributions in thousands of NOK. Light boundaries separate the segments.',
+    series: contributions,
+  },
+  {
+    id: 'stacked-area',
+    title: 'Stacked area',
+    area: true,
+    stacked: true,
+    description:
+      'Cumulative monthly contributions in thousands of NOK, with visible boundaries between series.',
+    series: contributions,
+  },
+  {
+    id: 'scatter',
+    title: 'Scatter plot',
+    kind: 'scatter',
+    description:
+      'Compare hours of effort (X) with output in units (Y). Numeric X positions preserve unequal intervals.',
+    series: [
+      [20, 35, 30, 55, 60, 75],
+      [65, 60, 70, 65, 80, 90],
+    ],
+  },
+  ...(['pie', 'donut'] as const).map((kind) => ({
+    id: kind,
+    title: kind === 'pie' ? 'Pie' : 'Donut',
+    kind,
+    description:
+      'Three parts of a whole, labeled with their shares. Use bars when precise comparison matters.',
+    series: [[55], [30], [15]],
+  })),
+  {
     id: 'gaps',
     title: 'Missing observations',
     description: 'March has no observation. The line leaves a gap.',
@@ -62,3 +115,26 @@ export const examples: Example[] = [
     override: true,
   },
 ]
+
+export const scatterX = [5, 12, 28, 45, 70, 90]
+export const isRadial = (example: Example) =>
+  example.kind === 'pie' || example.kind === 'donut'
+export const exampleLabels = (example: Example) =>
+  isRadial(example)
+    ? ['Share']
+    : example.kind === 'scatter'
+      ? scatterX.map(String)
+      : labels
+export const seriesName = (example: Example, index: number) =>
+  (isRadial(example) ? 'Part ' : 'Series ') + (index + 1)
+export const exampleUnit = (example: Example) =>
+  isRadial(example)
+    ? 'percent of total'
+    : example.kind === 'scatter'
+      ? 'output in units'
+      : example.kind === 'bar' || example.stacked
+        ? 'thousands of NOK'
+        : 'percent'
+export const supportsExample = (library: string, example: Example) =>
+  library !== 'chartist' ||
+  (example.kind !== 'scatter' && example.id !== 'stacked-area')

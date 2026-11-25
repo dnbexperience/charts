@@ -72,7 +72,7 @@ try {
       type: 'module',
       dependencies: {
         '@eufemia/charts': 'file:' + path.join(temporary, pack.filename),
-        '@dnb/eufemia': manifest.devDependencies['@dnb/eufemia'],
+        '@dnb/eufemia': manifest.peerDependencies['@dnb/eufemia'].slice(1),
       },
     })
   )
@@ -160,15 +160,22 @@ try {
       'import type { EChartsCoreOption } from "echarts/core";',
       'import { createChartJsOptions } from "@eufemia/charts/chart-js";',
       'import { createRechartsConfig } from "@eufemia/charts/recharts";',
-      'import { createNivoConfig } from "@eufemia/charts/nivo";',
+      'import { createNivoConfig, createNivoTheme } from "@eufemia/charts/nivo";',
       'import { createEChartsOptions } from "@eufemia/charts/echarts";',
       'import { readChartTheme } from "@eufemia/charts/theme";',
       'const theme = readChartTheme(document.body);',
       'const chartJs: ChartOptions<"line"> = createChartJsOptions(theme);',
+      'const bar: ChartOptions<"bar"> = createChartJsOptions(theme, "bar");',
+      'const scatter: ChartOptions<"scatter"> = createChartJsOptions(theme, "scatter");',
+      'const pie: ChartOptions<"pie"> = createChartJsOptions(theme, "pie");',
+      'const donut: ChartOptions<"doughnut"> = createChartJsOptions(theme, "doughnut");',
+      'const nivoTheme: NonNullable<LineSvgProps<LineSeries>["theme"]> = createNivoTheme(theme);',
       'const nivo: Partial<LineSvgProps<LineSeries>> = createNivoConfig(theme);',
       'const echarts: EChartsCoreOption = createEChartsOptions(theme);',
       'const recharts = createRechartsConfig(theme);',
-      'import { createLineChartOptions } from "@eufemia/charts/chartist";',
+      'import { createLineChartOptions, createBarChartOptions, createPieChartOptions } from "@eufemia/charts/chartist";',
+      'createBarChartOptions({stackBars: true});',
+      'createPieChartOptions({donut: true});',
       'const options: LineChartPresetOptions = createLineChartOptions({axisY: {labelInterpolationFnc: value => String(value)}});',
       'lineChart(document.createElement("div"), {series: [[1, null, 2]]}, options).destroy();',
     ].join('\n')

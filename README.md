@@ -4,19 +4,19 @@ Chart-library defaults for Eufemia, published independently as `@eufemia/charts`
 
 [Preview the five integrations](https://dnbexperience.github.io/charts/) · [Report an issue](https://github.com/dnbexperience/charts/issues)
 
-Five integrations provide Eufemia defaults for line and area charts. The package has no JavaScript runtime dependencies or root entry point. Each chart library is an optional peer: install only the library your application uses. These presets do not configure every chart type or provide a React wrapper.
+Five integrations provide Eufemia chart colors, typography and styling defaults. The gallery covers lines, areas, grouped and stacked bars, stacked areas, scatter plots, pies and donuts. The package has no JavaScript runtime dependencies or root entry point. Each chart library is an optional peer: install only the library your application uses. Helpers cover shared styling and selected chart options; configure data, scales and geometry with the library's native API. The package does not provide a React wrapper.
 
-| Library        | Import                     | Helpers                                        | React integration               |
-| -------------- | -------------------------- | ---------------------------------------------- | ------------------------------- |
-| Chartist       | `@eufemia/charts/chartist` | `createLineChartOptions`                       | Create and destroy in an effect |
-| Recharts       | `@eufemia/charts/recharts` | `createRechartsConfig`                         | React components                |
-| Chart.js       | `@eufemia/charts/chart-js` | `createChartJsOptions`, `createChartJsDataset` | `react-chartjs-2`               |
-| Nivo           | `@eufemia/charts/nivo`     | `createNivoConfig`                             | `@nivo/line` React components   |
-| Apache ECharts | `@eufemia/charts/echarts`  | `createEChartsOptions`, `createEChartsSeries`  | Create and dispose in an effect |
+| Library        | Import                     | Helpers                                                                    | React integration               |
+| -------------- | -------------------------- | -------------------------------------------------------------------------- | ------------------------------- |
+| Chartist       | `@eufemia/charts/chartist` | `createLineChartOptions`, `createBarChartOptions`, `createPieChartOptions` | Create and destroy in an effect |
+| Recharts       | `@eufemia/charts/recharts` | `createRechartsConfig`                                                     | React components                |
+| Chart.js       | `@eufemia/charts/chart-js` | `createChartJsOptions`, `createChartJsDataset`                             | `react-chartjs-2`               |
+| Nivo           | `@eufemia/charts/nivo`     | `createNivoConfig`, `createNivoTheme`                                      | `@nivo/*` React components      |
+| Apache ECharts | `@eufemia/charts/echarts`  | `createEChartsOptions`, `createEChartsSeries`                              | Create and dispose in an effect |
 
 Recharts offers composition through React components. Chart.js offers canvas rendering. Nivo offers declarative React charts built on D3. ECharts covers a broad range of visualizations with selectively imported modules. Chartist provides a small SVG integration styled through CSS. Choose according to the chart types, interactions, data volume, accessibility and bundle constraints of your application.
 
-All integrations use four Eufemia series colors, straight lines, point markers, horizontal gridlines and no animation. Chartist, Recharts, Chart.js and ECharts also distinguish series with line patterns. Nivo's default line layer uses solid lines, so its gallery legend reflects that. Presets disable built-in tooltips where applicable; applications must provide any required interaction and accessible equivalents.
+All integrations use four Eufemia series colors and Eufemia typography. Line examples use straight lines, point markers and horizontal gridlines. Gallery animations are disabled. Chartist, Recharts, Chart.js and ECharts also distinguish series with line patterns. Nivo's default line layer uses solid lines, so its gallery legend reflects that. Presets disable built-in tooltips where applicable; applications must provide any required interaction and accessible equivalents.
 
 ## Resolve theme values
 
@@ -35,6 +35,27 @@ const config = createRechartsConfig(theme)
 Call `readChartTheme` with a mounted element that inherits the Eufemia font and chart colors. It returns a snapshot. Read it again and update the chart when your application changes those properties. Keep the plot on a light surface, including in dark themes. Helpers can be imported on the server; theme resolution and chart rendering happen in the browser.
 
 Spread `config.style` on the Recharts chart, `config.axis` on each axis, `config.grid` on `CartesianGrid`, and `config.series[index]` on each `Line` or `Area`. For Chart.js, pass `createChartJsOptions(theme)` as options and merge `createChartJsDataset(theme, index)` into each dataset. Spread `createNivoConfig(theme)` onto Nivo's `ResponsiveLine`. Merge `createEChartsOptions(theme)` with your axes and data, and `createEChartsSeries(theme, index)` into each ECharts line series. Configure dimensions, ranges, locale-specific units, data and area fills in your application. The gallery source contains complete React examples for each integration.
+
+## Other chart types
+
+Chartist provides separate option helpers for lines, bars and pies. Use `createBarChartOptions({ stackBars: true })` for stacked bars and `createPieChartOptions({ donut: true })` for a donut. Both use the same scoped stylesheet. Supply slice labels and units yourself. Chartist has no native scatter or stacked-area chart; the gallery omits those examples.
+
+Chart.js accepts the native chart type as the second argument. Keep the matching controller, elements and scales registered in your application or use the corresponding `react-chartjs-2` component:
+
+```ts
+const barOptions = createChartJsOptions(theme, 'bar')
+const scatterOptions = createChartJsOptions(theme, 'scatter')
+const pieOptions = createChartJsOptions(theme, 'pie')
+const donutOptions = createChartJsOptions(theme, 'doughnut')
+```
+
+Bar options start the value axis at zero, scatter uses numeric axes, and pie/donut options omit Cartesian scales. `createChartJsDataset` supplies line and pale area colors; set solid `theme.colors[index]` for bars or stacked areas, and `theme.colors` for radial datasets.
+
+For Nivo, install only the modules you use, such as `@nivo/bar`, `@nivo/scatterplot` or `@nivo/pie`. Pass `createNivoTheme(theme)` as their `theme` and `theme.colors` as their `colors`. `createNivoConfig` adds line-specific defaults for `@nivo/line`.
+
+Recharts' style, axis and grid props work with its Cartesian charts; its series props target Line and Area. Use native Bar, Scatter and Pie props with the resolved palette. ECharts' option helper supplies Cartesian defaults and its series helper targets lines. Register the required ECharts modules, configure bar/scatter series with native options, and omit Cartesian axes for pie/donut charts. See the [complete gallery examples](https://github.com/dnbexperience/charts/tree/main/site) for each integration.
+
+Use a zero baseline for bars, explicit numeric units for scatter axes, and light boundaries between touching colored segments. Keep pies and donuts to a few parts with visible numeric labels; use bars when precise comparison matters. The gallery uses thousands of NOK for contributions, hours and output units for scatter, and percentages for shares. Each example includes an equivalent data table and a legend with the corresponding line, swatch or point symbol.
 
 ## Use Chartist
 
@@ -91,7 +112,7 @@ The package check prepares and packs the release artifact in a temporary directo
 
 ## Preview gallery
 
-The standalone Vite gallery follows the logos and illustrations deployment pattern and uses the application starter's responsive Eufemia SidebarMenu shell. Each library loads on navigation and shows the same six examples: line, area, four series, four area fills, missing observations, and local overrides. Every example includes a data table in a tertiary Accordion.
+The standalone Vite gallery follows the logos and illustrations deployment pattern and uses the application starter's responsive Eufemia SidebarMenu shell. Each library loads on navigation and shows twelve examples: line, area, four series, four area fills, grouped bars, stacked bars, stacked area, scatter, pie, donut, missing observations, and local overrides. Chartist shows ten because it has no native scatter or stacked-area chart. Every example includes a data table in a tertiary Accordion.
 
 ```sh
 yarn build
@@ -100,7 +121,7 @@ yarn site
 
 Open the printed local URL with `#overview`, `#chartist`, `#recharts`, `#chart-js`, `#nivo`, or `#echarts`. Run `site:build` to create `.pages`, or `site:check` to build and check nested asset paths, sidebar navigation, browser history, chart cleanup, data tables, themes, and mobile layout in Chromium. Set `CHARTS_GALLERY_SCREENSHOT` to an absolute PNG path to save the gallery. Build the package first when running these commands separately.
 
-The gallery uses the published Eufemia UI and the package's alpha palette defaults. To review a palette from another checkout locally, set `CHARTS_THEME_FILE` to that checkout's absolute theme SCSS path when running `site` or `site:build`.
+The gallery pins the Eufemia PR #11069 preview at `bd02ff635a90b7bb2b57e71ab1ce636961a3c064` to use its chart color properties directly. Published consumers can use Eufemia 11.18.1 or later with the package's matching alpha palette fallbacks. To review a palette from another checkout locally, set `CHARTS_THEME_FILE` to that checkout's absolute theme SCSS path when running `site` or `site:build`.
 
 PR previews follow the logos and illustrations setup: CI uploads the validated static gallery, and the trusted Pages workflow assembles successful previews for open pull requests at their current revision. Preview URLs use `/charts/previews/pr-N/#overview` and appear as GitHub deployments. Closing a pull request removes its preview on the next deployment. Relative asset paths support both production and nested preview URLs.
 

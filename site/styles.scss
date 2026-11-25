@@ -69,26 +69,43 @@
       width: 1.5rem;
       margin-right: 0.5rem;
       vertical-align: middle;
-      border-top: 0.125rem solid var(--chart-color-tertiary-solid, #007b5e);
+      border-top: 0.125rem solid currentcolor;
+      color: var(--chart-color-tertiary-solid, #007b5e);
     }
 
     li:nth-child(2)::before {
-      border-color: var(--chart-color-blue-700, #1955a9);
+      color: var(--chart-color-blue-700, #1955a9);
       border-top-style: dashed;
     }
 
     li:nth-child(3)::before {
-      border-color: var(--chart-color-purple-700, #3c3caa);
+      color: var(--chart-color-purple-700, #3c3caa);
       border-top-style: dotted;
     }
 
     li:nth-child(4)::before {
-      border-color: var(--chart-color-orange-700, #cc4300);
+      color: var(--chart-color-orange-700, #cc4300);
       border-top-style: dashed;
     }
 
     &--solid li:nth-child(n)::before {
       border-top-style: solid;
+    }
+
+    &--swatches li:nth-child(n)::before,
+    &--points li:nth-child(n)::before {
+      width: 0.75rem;
+      height: 0.75rem;
+      border: 0;
+      background-color: currentcolor;
+    }
+
+    &--points li:first-child::before {
+      border-radius: 50%;
+    }
+
+    &--points li:nth-child(2)::before {
+      transform: rotate(45deg);
     }
   }
 }

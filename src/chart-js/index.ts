@@ -1,9 +1,19 @@
 import type { ChartOptions } from 'chart.js'
 import type { ChartTheme } from '../theme.js'
 
+type SupportedChart = 'line' | 'bar' | 'scatter' | 'pie' | 'doughnut'
+
 export function createChartJsOptions(
   theme: ChartTheme
-): ChartOptions<'line'> {
+): ChartOptions<'line'>
+export function createChartJsOptions<T extends SupportedChart>(
+  theme: ChartTheme,
+  type: T
+): ChartOptions<T>
+export function createChartJsOptions<T extends SupportedChart = 'line'>(
+  theme: ChartTheme,
+  type?: T
+): ChartOptions<T> {
   return {
     responsive: true,
     maintainAspectRatio: false,
@@ -15,25 +25,31 @@ export function createChartJsOptions(
       point: { radius: 3, hoverRadius: 5 },
     },
     plugins: { legend: { display: false }, tooltip: { enabled: false } },
-    scales: {
-      x: {
-        grid: { display: false },
-        ticks: {
-          color: theme.textColor,
-          font: { family: theme.fontFamily, size: 16 },
-        },
-        border: { display: false },
-      },
-      y: {
-        grid: { color: theme.gridColor },
-        ticks: {
-          color: theme.textColor,
-          font: { family: theme.fontFamily, size: 16 },
-        },
-        border: { display: false },
-      },
-    },
-  }
+    ...(type === 'pie' || type === 'doughnut'
+      ? {}
+      : {
+          scales: {
+            x: {
+              type: type === 'scatter' ? 'linear' : 'category',
+              grid: { display: false },
+              ticks: {
+                color: theme.textColor,
+                font: { family: theme.fontFamily, size: 16 },
+              },
+              border: { display: false },
+            },
+            y: {
+              ...(type === 'bar' ? { beginAtZero: true } : {}),
+              grid: { color: theme.gridColor },
+              ticks: {
+                color: theme.textColor,
+                font: { family: theme.fontFamily, size: 16 },
+              },
+              border: { display: false },
+            },
+          },
+        }),
+  } as ChartOptions<T>
 }
 
 export function createChartJsDataset(theme: ChartTheme, seriesIndex = 0) {

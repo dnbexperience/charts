@@ -18,7 +18,15 @@ import SidebarMenu from '@dnb/eufemia/extensions/sidebar-menu/SidebarMenu.js'
 import home from '@dnb/eufemia/icons/home.js'
 import Theme from '@dnb/eufemia/shared/Theme.js'
 import { readChartTheme, type ChartTheme } from '../dist/theme.js'
-import { examples, labels, type Example } from './examples.js'
+import {
+  examples,
+  exampleLabels,
+  exampleUnit,
+  seriesName,
+  supportsExample,
+  isRadial,
+  type Example,
+} from './examples.js'
 import Readme from './Readme.js'
 import chartistIcon from './icons/chartist.svg'
 import rechartsIcon from './icons/recharts.png'
@@ -86,19 +94,27 @@ function DataTable({ example }: { example: Example }) {
     <Accordion variant="tertiary" title="View data" top="small">
       <Table.ScrollView top="small">
         <Table size="small">
-          <caption>{example.title} – values in percent</caption>
+          <caption>
+            {example.title} – {exampleUnit(example)}
+          </caption>
           <thead>
             <Tr>
-              <Th scope="col">Month</Th>
+              <Th scope="col">
+                {isRadial(example)
+                  ? 'Measure'
+                  : example.kind === 'scatter'
+                    ? 'Effort (hours)'
+                    : 'Month'}
+              </Th>
               {example.series.map((_, index) => (
                 <Th scope="col" key={index}>
-                  Series {index + 1}
+                  {seriesName(example, index)}
                 </Th>
               ))}
             </Tr>
           </thead>
           <tbody>
-            {labels.map((label, index) => (
+            {exampleLabels(example).map((label, index) => (
               <Tr key={label}>
                 <Th scope="row">{label}</Th>
                 {example.series.map((series, seriesIndex) => (
@@ -156,9 +172,13 @@ function ChartPreview({
           layoutEngine="css"
           className={
             'dnb-chart-gallery__legend' +
-            (library.key === 'nivo'
-              ? ' dnb-chart-gallery__legend--solid'
-              : '')
+            (example.kind === 'scatter'
+              ? ' dnb-chart-gallery__legend--points'
+              : example.kind || example.stacked
+                ? ' dnb-chart-gallery__legend--swatches'
+                : library.key === 'nivo'
+                  ? ' dnb-chart-gallery__legend--solid'
+                  : '')
           }
           gap="small"
           rowGap="x-small"
@@ -166,7 +186,12 @@ function ChartPreview({
           role="list"
         >
           {example.series.map((_, index) => (
-            <Li key={index}>Series {index + 1}</Li>
+            <Li key={index}>
+              {seriesName(example, index)}
+              {isRadial(example)
+                ? ': ' + example.series[index][0] + '%'
+                : ''}
+            </Li>
           ))}
         </Flex.Container>
       )}
@@ -188,6 +213,12 @@ function Gallery({ library }: { library: Library }) {
           as the chart guidelines develop.
         </P>
       </Card>
+      {library.key === 'chartist' && (
+        <P top="medium">
+          Chartist has no native stacked-area or scatter chart. Those
+          examples are available in the other integrations.
+        </P>
+      )}
       <Readme />
       <P top="medium">
         <Anchor href={library.href}>{library.title} documentation</Anchor>
@@ -198,13 +229,15 @@ function Gallery({ library }: { library: Library }) {
         columnGap="medium"
         top="large"
       >
-        {examples.map((example) => (
-          <ChartPreview
-            key={example.id}
-            example={example}
-            library={library}
-          />
-        ))}
+        {examples
+          .filter((example) => supportsExample(library.key, example))
+          .map((example) => (
+            <ChartPreview
+              key={example.id}
+              example={example}
+              library={library}
+            />
+          ))}
       </Grid.Container>
     </Space>
   )
@@ -216,8 +249,8 @@ function Overview() {
       <P>
         Compare five React-compatible chart libraries using the same
         Eufemia styling and data. Choose a library in the sidebar to
-        preview lines, area fills, four series, missing observations and
-        local overrides.
+        preview lines, areas, grouped and stacked bars, scatter plots, pie
+        and donut charts, missing observations and local overrides.
       </P>
       <P>
         The package provides configuration and theme values. Install the
@@ -242,10 +275,10 @@ function Overview() {
       </Grid.Container>
       <P>
         These are practical options with different rendering and
-        composition models, rather than a universal ranking. The line-chart
-        presets are a starting point. Each example includes a data table;
-        keyboard interaction, tooltips and larger datasets need validation
-        in the consuming application.
+        composition models, rather than a universal ranking. The presets
+        are a starting point. Each example includes a data table; keyboard
+        interaction, tooltips and larger datasets need validation in the
+        consuming application.
       </P>
     </Flex.Stack>
   )

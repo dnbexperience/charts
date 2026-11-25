@@ -8,7 +8,7 @@ import {
   createEChartsOptions,
   createEChartsSeries,
 } from '../src/echarts/index.ts'
-import { createNivoConfig } from '../src/nivo/index.ts'
+import { createNivoConfig, createNivoTheme } from '../src/nivo/index.ts'
 import { createRechartsConfig } from '../src/recharts/index.ts'
 import type { ChartTheme } from '../src/theme.ts'
 
@@ -20,6 +20,34 @@ const theme: ChartTheme = {
   gridColor: 'gray',
   backgroundColor: 'white',
 }
+
+test('Chart.js uses numeric scatter axes and omits Cartesian axes for radial charts', () => {
+  assert.equal(
+    createChartJsOptions(theme, 'scatter').scales?.x?.type,
+    'linear'
+  )
+  assert.equal(
+    createChartJsOptions(theme, 'bar').scales?.x?.type,
+    'category'
+  )
+  const y = createChartJsOptions(theme, 'bar').scales!.y!
+  assert.ok('beginAtZero' in y)
+  assert.equal(y.beginAtZero, true)
+  assert.equal(
+    'beginAtZero' in createChartJsOptions(theme).scales!.y!,
+    false
+  )
+  assert.equal(createChartJsOptions(theme, 'pie').scales, undefined)
+  assert.equal(createChartJsOptions(theme, 'doughnut').scales, undefined)
+})
+
+test('Nivo shares typography and grid styling across chart types', () => {
+  const nivo = createNivoTheme(theme)
+  assert.deepEqual(nivo, createNivoConfig(theme).theme)
+  assert.equal(nivo.background, theme.backgroundColor)
+  assert.equal(nivo.grid.line.stroke, theme.gridColor)
+  assert.equal(nivo.axis.ticks.text.fill, theme.textColor)
+})
 
 test('maps all four series to matching line and area colors', () => {
   const recharts = createRechartsConfig(theme)
