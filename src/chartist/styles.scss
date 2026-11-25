@@ -1,0 +1,49 @@
+@use 'sass:meta';
+
+.dnb-chartist {
+  @include meta.load-css('pkg:chartist/styles.css');
+
+  --ct-label-color: var(--color-black-80);
+  --ct-label-size: var(--font-size-small);
+  --ct-grid-color: var(--color-black-20);
+  --ct-series-a: var(--chart-color-tertiary-solid, #007b5e);
+  --ct-series-b: var(--chart-color-blue-700, #1955a9);
+  --ct-series-c: var(--chart-color-purple-700, #3c3caa);
+  --ct-series-d: var(--chart-color-orange-700, #cc4300);
+  --ct-line-width: 0.125rem;
+  --ct-point-size: 0.375rem;
+  --ct-area-opacity: 1;
+
+  color: var(--color-black-80);
+  font-family: var(--font-family-default);
+  background-color: var(--color-white);
+  color-scheme: light;
+
+  .ct-series-b .ct-line {
+    stroke-dasharray: 8 4;
+  }
+
+  .ct-series-c .ct-line {
+    stroke-dasharray: 2 4;
+  }
+
+  .ct-series-d .ct-line {
+    stroke-dasharray: 8 4 2 4;
+  }
+
+  .ct-series-a .ct-area {
+    fill: var(--chart-color-tertiary-outline-fill, #ebf4f2);
+  }
+
+  .ct-series-b .ct-area {
+    fill: var(--chart-color-blue-100, #e1e9f9);
+  }
+
+  .ct-series-c .ct-area {
+    fill: var(--chart-color-purple-100, #e4e4f1);
+  }
+
+  .ct-series-d .ct-area {
+    fill: var(--chart-color-orange-100, #ffeae0);
+  }
+}

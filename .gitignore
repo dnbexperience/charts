@@ -1,0 +1,5 @@
+dist/
+.release/
+.pages/
+node_modules/
+.yarn/
