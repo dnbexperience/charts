@@ -12,6 +12,20 @@
     min-width: 0;
   }
 
+  &__header {
+    position: sticky;
+    z-index: calc(var(--z-index-dropdown) - 2);
+    top: 0;
+    min-height: 4.5rem;
+    border-bottom: 0.0625rem solid
+      color-mix(
+        in srgb,
+        var(--token-color-stroke-neutral-subtle) 40%,
+        transparent
+      );
+    background-color: var(--token-color-background-neutral-subtle);
+  }
+
   &__plot {
     width: 100%;
     min-width: 0;

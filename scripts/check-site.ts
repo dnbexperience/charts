@@ -65,6 +65,37 @@ try {
       .getByRole('link', { name: 'Chartist', exact: true })
   ).toHaveAttribute('aria-current', 'page')
   await expect(page.locator('.dnb-chartist svg')).toHaveCount(6)
+  const icons = page.locator('aside .dnb-sidebar-menu__item__icon img')
+  await expect(icons).toHaveCount(5)
+  await expect
+    .poll(() =>
+      icons.evaluateAll((images) =>
+        images.every(
+          (image) =>
+            image instanceof HTMLImageElement && image.naturalWidth > 0
+        )
+      )
+    )
+    .toBe(true)
+  const checkStickyHeader = async () => {
+    await page.evaluate(() => window.scrollTo(0, 600))
+    await expect
+      .poll(() =>
+        page.locator('header').evaluate((header) => {
+          const bounds = header.getBoundingClientRect()
+          return (
+            window.scrollY > 0 &&
+            bounds.top === 0 &&
+            header.contains(
+              document.elementFromPoint(bounds.right - 20, 20)
+            )
+          )
+        })
+      )
+      .toBe(true)
+  }
+  await checkStickyHeader()
+  await page.evaluate(() => window.scrollTo(0, 0))
   const noticeGap = await page
     .getByRole('heading', { name: 'Preview colors', exact: true })
     .evaluate((heading) => {
@@ -210,9 +241,13 @@ try {
     await page.setViewportSize({ width: 1440, height: 1000 })
   }
   await page.setViewportSize({ width: 390, height: 844 })
+  await checkStickyHeader()
   await page.getByRole('button', { name: 'Menu', exact: true }).click()
   const drawer = page.getByRole('dialog', { name: 'Chart libraries' })
   await expect(drawer).toBeVisible()
+  await expect(
+    drawer.locator('.dnb-sidebar-menu__item__icon img')
+  ).toHaveCount(5)
   await drawer.getByRole('link', { name: 'Chartist', exact: true }).click()
   await expect(drawer).not.toBeVisible()
   await expect(page.locator('.dnb-chartist svg')).toHaveCount(6)
@@ -239,7 +274,7 @@ try {
   ).toBeVisible()
   assert.deepEqual(errors, [])
   console.log(
-    'Verified five chart integrations, nested assets, sidebar history, chart cleanup, keyboard-operated data accordions, themes and mobile navigation.'
+    'Verified five chart integrations, local library icons, sticky headers, nested assets, sidebar history, chart cleanup, keyboard-operated data accordions, themes and mobile navigation.'
   )
 } finally {
   await browser?.close()

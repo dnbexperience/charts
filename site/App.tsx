@@ -16,15 +16,20 @@ import Li from '@dnb/eufemia/elements/Li.js'
 import P from '@dnb/eufemia/elements/P.js'
 import SidebarMenu from '@dnb/eufemia/extensions/sidebar-menu/SidebarMenu.js'
 import home from '@dnb/eufemia/icons/home.js'
-import graph from '@dnb/eufemia/icons/graph_increase.js'
 import Theme from '@dnb/eufemia/shared/Theme.js'
 import { readChartTheme, type ChartTheme } from '../dist/theme.js'
 import { examples, labels, type Example } from './examples.js'
+import chartistIcon from './icons/chartist.svg'
+import rechartsIcon from './icons/recharts.png'
+import chartJsIcon from './icons/chart-js.ico'
+import nivoIcon from './icons/nivo.png'
+import echartsIcon from './icons/echarts.png'
 
 const libraries = [
   {
     key: 'chartist',
     title: 'Chartist',
+    icon: chartistIcon,
     description:
       'Small SVG charts with scoped CSS and a browser lifecycle. Use it in a React effect.',
     href: 'https://chartist.dev/',
@@ -33,14 +38,16 @@ const libraries = [
   {
     key: 'recharts',
     title: 'Recharts',
+    icon: rechartsIcon,
     description:
       'Compose SVG charts with React components. A useful starting point for application charts.',
-    href: 'https://recharts.org/',
+    href: 'https://recharts.github.io/',
     Chart: lazy(() => import('./Recharts.js')),
   },
   {
     key: 'chart-js',
     title: 'Chart.js',
+    icon: chartJsIcon,
     description:
       'Canvas charts with the react-chartjs-2 adapter. Useful when SVG point counts become costly.',
     href: 'https://react-chartjs-2.js.org/',
@@ -49,6 +56,7 @@ const libraries = [
   {
     key: 'nivo',
     title: 'Nivo',
+    icon: nivoIcon,
     description:
       'React charts built on D3, with declarative themes and SVG or canvas renderers. This preview uses SVG.',
     href: 'https://nivo.rocks/line/',
@@ -57,6 +65,7 @@ const libraries = [
   {
     key: 'echarts',
     title: 'Apache ECharts',
+    icon: echartsIcon,
     description:
       'A broad chart engine for richer visualizations. Use its browser lifecycle in a React effect; this preview selects the SVG renderer.',
     href: 'https://echarts.apache.org/handbook/en/get-started/',
@@ -270,12 +279,12 @@ export default function App() {
         href="#overview"
         onClick={() => setMenuOpen(false)}
       />
-      {libraries.map(({ key, title }) => (
+      {libraries.map(({ key, title, icon }) => (
         <SidebarMenu.Item
           key={key}
           id={location + '-' + key}
           text={title}
-          icon={graph}
+          icon={<img src={icon} alt="" />}
           href={'#' + key}
           onClick={() => setMenuOpen(false)}
         />
@@ -304,10 +313,16 @@ export default function App() {
           <Space className="dnb-chart-gallery__workspace">
             <Flex.Container
               element="header"
+              className="dnb-chart-gallery__header"
               layoutEngine="css"
               align="center"
               justify="space-between"
-              innerSpace="small"
+              innerSpace={{
+                top: 'x-small',
+                right: 'small',
+                bottom: 'x-small',
+                left: 'small',
+              }}
             >
               <Flex.Container layoutEngine="css" align="center">
                 <SidebarMenu.ResponsiveTrigger text="Menu" />
