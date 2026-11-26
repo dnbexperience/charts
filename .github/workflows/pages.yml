@@ -1,0 +1,121 @@
+name: Pages
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+  pull_request_target:
+    types: [closed]
+
+permissions: {}
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Assemble Pages
+    if: >-
+      github.ref == 'refs/heads/main' &&
+      (github.event_name != 'workflow_run' ||
+        (github.event.workflow_run.event == 'pull_request' &&
+         github.event.workflow_run.head_repository.full_name == github.repository))
+    permissions:
+      contents: read # Read the committed manifest, documentation and assets.
+      actions: read # Download successful gallery builds.
+      pull-requests: read # Include only open pull requests at their current revision.
+    outputs:
+      previews: ${{ steps.previews.outputs.previews }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+          ref: main
+
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version-file: .node-version
+          package-manager-cache: false
+
+      - name: Install locked dependencies
+        if: hashFiles('package.json') != ''
+        run: |
+          npm install --global corepack@0.36.0
+          corepack enable
+          yarn install --immutable
+
+      - name: Build gallery
+        if: hashFiles('package.json') != ''
+        run: |
+          yarn build
+          yarn site:build
+
+      - name: Build placeholder
+        if: hashFiles('package.json') == ''
+        run: |
+          mkdir -p .pages
+          cp scripts/pages-placeholder.html .pages/index.html
+
+      - name: Assemble current PR previews
+        id: previews
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          export GH_HOST="${GITHUB_SERVER_URL#https://}"
+          previews=$(node --experimental-strip-types scripts/pages-previews.ts)
+          echo "previews=$previews" >> "$GITHUB_OUTPUT"
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: .pages
+
+  deploy:
+    name: Deploy gallery
+    needs: build
+    permissions:
+      pages: write # Deploy the prepared Pages artifact.
+      id-token: write # Authenticate the deployment to GitHub Pages.
+      contents: read # Read the deployment script from main.
+      deployments: write # Show preview URLs on pull requests.
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out deployment script
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: main
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version-file: .node-version
+          package-manager-cache: false
+
+      - name: Deploy Pages
+        id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
+
+      - name: Report preview deployments
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PAGES_URL: ${{ steps.deployment.outputs.page_url }}
+          PREVIEWS: ${{ needs.build.outputs.previews }}
+        run: |
+          export GH_HOST="${GITHUB_SERVER_URL#https://}"
+          node --experimental-strip-types scripts/pages-previews.ts report
